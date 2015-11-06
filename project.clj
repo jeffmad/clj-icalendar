@@ -1,4 +1,4 @@
-(defproject org.clojars.jeffmad/clj-icalendar "0.1.1-SNAPSHOT"
+(defproject org.clojars.jeffmad/clj-icalendar "0.1.2"
   :description "wrapper over ical4j to generate ics"
   :url "http://github.com/jeffmad/clj-icalendar"
   :license {:name "Eclipse Public License"

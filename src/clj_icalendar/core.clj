@@ -1,7 +1,9 @@
 (ns clj-icalendar.core
   (:import (net.fortuna.ical4j.model Calendar DateTime Dur)
            (net.fortuna.ical4j.model.component VEvent)
-           (net.fortuna.ical4j.model.property CalScale ProdId Uid Version XProperty Duration Description Method Url Location)
+           (net.fortuna.ical4j.model.property CalScale ProdId Uid Version XProperty Duration Description Method Url Location Organizer)
+           (net.fortuna.ical4j.data CalendarOutputter)
+           (java.io StringWriter)
            (java.util Date)))
 
 (defn create-cal
@@ -19,11 +21,12 @@
   "take a vevent and add properties to it.
   the supported properties are url unique-id description and location.
   If no unique-id is supplied UUID will be generated"
-  [vevent {:keys [^String unique-id ^String description ^String url ^String location]
+  [vevent {:keys [^String unique-id ^String description ^String url ^String location ^String organizer]
            :or {unique-id (str (java.util.UUID/randomUUID))}}]
   (let [u (if (seq unique-id) unique-id (str (java.util.UUID/randomUUID)))
         props (.getProperties vevent)]
     (.add props (Uid. u))
+    (.add props (Organizer. organizer))
     (when (seq url) (.add props (Url. (java.net.URI. url))))
     (when (seq location) (.add props (Location. location)))
     (when (seq description) (.add props (Description. description)))
@@ -43,7 +46,7 @@
    the time portion of the start date will be truncated.
    Optionally, one can pass in keyword args for unique-id,
    description, url, and location. vevent is returned "
-  [^Date start ^String title & {:keys [^String unique-id ^String description ^String url ^String location] :as all}]
+  [^Date start ^String title & {:keys [^String unique-id ^String description ^String url ^String location ^String organizer] :as all}]
   (let [trunc (truncate-time start)
         st (doto  (DateTime. trunc) (.setUtc true))
         vevent (VEvent. st title)]
@@ -54,12 +57,12 @@
    The start date is a date with time, and since there
    is no end date specified, this event blocks no time on the calendar.
    Optional keyword parameters are unique-id, description, url, and location"
-  [^Date start ^String title & {:keys [^String unique-id ^String description ^String url ^String location] :as all}]
+  [^Date start ^String title & {:keys [^String unique-id ^String description ^String url ^String location ^String organizer] :as all}]
   (let [st (doto  (DateTime. start) (.setUtc true))
         vevent (VEvent. st title)]
     (add-properties vevent all)))
 
-(defn create-event [^Date start ^Date end ^String title & {:keys [^String unique-id ^String description ^String url ^String location] :as all}]
+(defn create-event [^Date start ^Date end ^String title & {:keys [^String unique-id ^String description ^String url ^String location ^String organizer] :as all}]
   (let [st (doto  (DateTime. start) (.setUtc true))
         et (doto  (DateTime. end) (.setUtc true))
         vevent (VEvent. st et title)]
@@ -69,3 +72,13 @@
   "take a calendar and a vevent, add the event to the calendar, and return the calendar"
   [^net.fortuna.ical4j.model.Calendar cal  ^VEvent vevent]
   (.add (.getComponents cal) vevent) cal)
+
+(defn output-calendar
+  "output the calendar to a string, using a folding writer,
+   which will limit the line lengths as per ical spec."
+  [^net.fortuna.ical4j.model.Calendar cal]
+  (let [co (CalendarOutputter.)
+        sw (StringWriter.)
+        output (.output co cal sw)
+        _ (.close sw)]
+    (.replaceAll (.toString sw) "\r" "")))
