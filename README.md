@@ -2,11 +2,11 @@
 
 A Clojure library that is a very thin wrapper around ical4j.
 
-[![Clojars Project](http://clojars.org/org.clojars.jeffmad/clj-icalendar/latest-version.svg)](http://clojars.org/org.clojars.jeffmad/clj-icalendar)
+[![Clojars Project](http://clojars.org/clj-icalendar/latest-version.svg)](http://clojars.org/clj-icalendar)
 
 ## Usage
 
-To create an empty calendar
+To create an empty calendar, call
 ```
 (create-cal "Acme, Inc." "Acme Calendar" "V0.1" "EN")
 ```
@@ -50,7 +50,7 @@ To create an all day event, call `create-all-day-event`.  The time portion of th
                        :location "Philadelphia, Pennsylvania USA" 
                        :organizer "http://cognitect.com/")
 ```
-To add an event to a calendar, call `add-event!`
+To add an event to a calendar, call `add-event!`, passing in the calendar and the event. 
 ```
 (add-event! (create-cal "Acme, Inc." "Acme Calendar" "V0.1" "EN") event)
 ```
@@ -83,7 +83,7 @@ END:VCALENDAR
 ```
 ## License
 
-Copyright © 2015 FIXME
+Copyright © 2015
 
 Distributed under the Eclipse Public License either version 1.0 or (at
 your option) any later version.
