@@ -4,7 +4,7 @@
            (net.fortuna.ical4j.model.property CalScale ProdId Uid Version XProperty Duration Description Method Url Location Organizer)
            (net.fortuna.ical4j.data CalendarOutputter)
            (java.io StringWriter)
-           (java.util Date)))
+           (java.util Date TimeZone)))
 
 (defn create-cal
   "create an empty calendar container. it is assumed to be
@@ -32,14 +32,24 @@
     (when (seq description) (.add props (Description. description)))
     vevent))
 
-(defn- truncate-time
-  "function to take a java.util.Date object and return a date
-   with the time portion truncated."
-  [^Date d]
+(comment
+  "this requires java 1.8, preventing some users from utilizing the library"
   (-> d
       .toInstant
       (.truncatedTo java.time.temporal.ChronoUnit/DAYS)
       Date/from))
+(defn- truncate-time
+  "function to take a java.util.Date object and return a date
+   with the time portion truncated."
+  [^Date d]
+  (let [tz (TimeZone/getTimeZone "Etc/GMT")
+        c (doto (java.util.Calendar/getInstance tz)
+            (.setTime d)
+            (.set java.util.Calendar/HOUR_OF_DAY 0)
+            (.set java.util.Calendar/MINUTE 0)
+            (.set java.util.Calendar/SECOND 0)
+            (.set java.util.Calendar/MILLISECOND 0))]
+    (.getTime c)))
 
 (defn create-all-day-event
   "create a vevent with start date and title.
@@ -48,7 +58,7 @@
    description, url, and location. vevent is returned "
   [^Date start ^String title & {:keys [^String unique-id ^String description ^String url ^String location ^String organizer] :as all}]
   (let [trunc (truncate-time start)
-        st (doto  (DateTime. trunc) (.setUtc true))
+        st (doto (DateTime. trunc) (.setUtc true))
         vevent (VEvent. st title)]
     (add-properties vevent all)))
 
