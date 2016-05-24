@@ -2,7 +2,9 @@
 
 A Clojure library that is a very thin wrapper around ical4j.
 
-[![Clojars Project](http://clojars.org/clj-icalendar/latest-version.svg)](http://clojars.org/clj-icalendar)
+[![Clojars Project](https://img.shields.io/clojars/v/org.clojars.vitallabs/clj-icalendar.svg)] (https://clojars.org/org.clojars.vitallabs/clj-icalendar)
+
+This is a fork with some enhancements from https://clojars.org/clj-icalendar
 
 ## Usage
 
