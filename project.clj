@@ -1,4 +1,4 @@
-(defproject org.clojars.vitallabs/clj-icalendar "0.1.4"
+(defproject org.clojars.vitallabs/clj-icalendar "0.1.5"
   :description "wrapper over ical4j to generate ics"
   :url "http://github.com/roberto-robles/clj-icalendar"
   :license {:name "Eclipse Public License"
