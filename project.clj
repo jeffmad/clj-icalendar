@@ -6,6 +6,6 @@
   :scm {:name "git"
         :url "https://github.com/jeffmad/clj-icalendar"}
   :dependencies [[org.clojure/clojure "1.8.0"]
-                 [org.mnode.ical4j/ical4j "1.0.6"]]
+                 [org.mnode.ical4j/ical4j "1.0.7"]]
   :global-vars {*warn-on-reflection* false
                 *assert* false})

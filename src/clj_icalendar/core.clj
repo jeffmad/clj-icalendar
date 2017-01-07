@@ -20,8 +20,8 @@
     (.add props Method/PUBLISH)
     (.add props CalScale/GREGORIAN)
     (if ttl (.add props (XProperty. "X-PUBLISHED-TTL" ttl)))
-    (if name (do  (.add props (Name. name))
-                  (.add props (XProperty. "X-WR-CALNAME" name))))
+    ; turns out that NAME is not valid for Calendar, only events
+    (if name (.add props (XProperty. "X-WR-CALNAME" name)))
     c))
 
 (defn- add-properties
