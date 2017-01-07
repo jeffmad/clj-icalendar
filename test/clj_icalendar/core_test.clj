@@ -11,6 +11,11 @@
     (let [cal "BEGIN:VCALENDAR\r\nPRODID:-//Acme\\, Inc. //Acme Calendar V0.1//EN\r\nVERSION:2.0\r\nMETHOD:PUBLISH\r\nCALSCALE:GREGORIAN\r\nEND:VCALENDAR\r\n"]
       (is (= cal (.toString (create-cal "Acme, Inc." "Acme Calendar" "V0.1" "EN")))))))
 
+(deftest create-named-empty-cal-test
+  (testing "basic calendar tags"
+    (let [cal "BEGIN:VCALENDAR\r\nPRODID:-//Acme\\, Inc. //Acme Calendar V0.1//EN\r\nVERSION:2.0\r\nMETHOD:PUBLISH\r\nCALSCALE:GREGORIAN\r\nX-PUBLISHED-TTL:PT4H\r\nNAME:Your Trip Calendar\r\nX-WR-CALNAME:Your Trip Calendar\r\nEND:VCALENDAR\r\n"]
+      (is (= cal (.toString (create-cal "Acme, Inc." "Acme Calendar" "V0.1" "EN" :name "Your Trip Calendar" :ttl "PT4H")))))))
+
 (defn- ->date
   "take in a date that looks like 2015-03-31T23:59:50-07:00
   and convert it into a java.util.Date"

@@ -1,7 +1,7 @@
 (ns clj-icalendar.core
   (:import (net.fortuna.ical4j.model Calendar DateTime Dur)
            (net.fortuna.ical4j.model.component VEvent)
-           (net.fortuna.ical4j.model.property CalScale ProdId Uid Version XProperty Duration Description Method Url Location Organizer)
+           (net.fortuna.ical4j.model.property CalScale ProdId Uid Version XProperty Duration Description Method Url Location Organizer Name)
            (net.fortuna.ical4j.data CalendarOutputter)
            (java.io StringWriter)
            (java.util Date TimeZone)))
@@ -9,13 +9,20 @@
 (defn create-cal
   "create an empty calendar container. it is assumed to be
    Gregorian ical 2.0 and a published calendar "
-  [^String org-name ^String product ^String version ^String lang]
+  [^String org-name ^String product ^String version ^String lang & rest]
   (let [c (Calendar.)
-        props (.getProperties c)]
+        props (.getProperties c)
+        opts (apply hash-map rest)
+        name (:name opts)
+        ttl  (:ttl opts)]
     (.add props (ProdId. (str "-//" org-name " //" product " " version "//" lang)))
     (.add props Version/VERSION_2_0)
     (.add props Method/PUBLISH)
-    (.add props CalScale/GREGORIAN) c))
+    (.add props CalScale/GREGORIAN)
+    (if ttl (.add props (XProperty. "X-PUBLISHED-TTL" ttl)))
+    (if name (do  (.add props (Name. name))
+                  (.add props (XProperty. "X-WR-CALNAME" name))))
+    c))
 
 (defn- add-properties
   "take a vevent and add properties to it.
@@ -32,24 +39,14 @@
     (when (seq description) (.add props (Description. description)))
     vevent))
 
-(comment
-  "this requires java 1.8, preventing some users from utilizing the library"
-  (-> d
-      .toInstant
-      (.truncatedTo java.time.temporal.ChronoUnit/DAYS)
-      Date/from))
 (defn- truncate-time
   "function to take a java.util.Date object and return a date
    with the time portion truncated."
   [^Date d]
-  (let [tz (TimeZone/getTimeZone "Etc/GMT")
-        c (doto (java.util.Calendar/getInstance tz)
-            (.setTime d)
-            (.set java.util.Calendar/HOUR_OF_DAY 0)
-            (.set java.util.Calendar/MINUTE 0)
-            (.set java.util.Calendar/SECOND 0)
-            (.set java.util.Calendar/MILLISECOND 0))]
-    (.getTime c)))
+  (-> d
+      .toInstant
+      (.truncatedTo java.time.temporal.ChronoUnit/DAYS)
+      Date/from))
 
 (defn create-all-day-event
   "create a vevent with start date and title.
